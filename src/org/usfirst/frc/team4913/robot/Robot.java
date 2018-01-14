@@ -7,9 +7,12 @@
 
 package org.usfirst.frc.team4913.robot;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
@@ -21,14 +24,21 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
  * directory.
  */
 public class Robot extends IterativeRobot {
-	private DifferentialDrive m_robotDrive
-			= new DifferentialDrive(new Spark(0), new Spark(1));
 	private Joystick m_stick = new Joystick(0);
 	private Timer m_timer = new Timer();
 
+	private WPI_TalonSRX rightCANMotor = new WPI_TalonSRX(0);
+	private Spark rightSparkMotor = new Spark(1);
+	private Spark leftSparkMotor = new Spark(0);
+	private WPI_TalonSRX leftCANMotor = new WPI_TalonSRX(1);
+
+	private SpeedControllerGroup leftGroup = new SpeedControllerGroup(leftSparkMotor, leftCANMotor);
+	private SpeedControllerGroup rightGroup = new SpeedControllerGroup(rightSparkMotor, rightCANMotor);
+	private DifferentialDrive m_robotDrive = new DifferentialDrive(leftGroup, rightGroup);
+
 	/**
-	 * This function is run when the robot is first started up and should be
-	 * used for any initialization code.
+	 * This function is run when the robot is first started up and should be used
+	 * for any initialization code.
 	 */
 	@Override
 	public void robotInit() {
