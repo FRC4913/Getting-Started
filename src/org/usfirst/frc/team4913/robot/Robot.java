@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -27,13 +26,16 @@ public class Robot extends IterativeRobot {
 	private Joystick m_stick = new Joystick(0);
 	private Timer m_timer = new Timer();
 
-	private WPI_TalonSRX rightCANMotor = new WPI_TalonSRX(0);
-	private Spark rightSparkMotor = new Spark(1);
-	private Spark leftSparkMotor = new Spark(0);
-	private WPI_TalonSRX leftCANMotor = new WPI_TalonSRX(1);
+	private WPI_TalonSRX right1CANMotor = new WPI_TalonSRX(0);
+//	private Spark rightSparkMotor = new Spark(1);
+//	private Spark leftSparkMotor = new Spark(0);
+	private WPI_TalonSRX left1CANMotor = new WPI_TalonSRX(1);
+	private WPI_TalonSRX right2CANMotor = new WPI_TalonSRX(2);
+	private WPI_TalonSRX left2CANMotor = new WPI_TalonSRX(3);
+	
 
-	private SpeedControllerGroup leftGroup = new SpeedControllerGroup(leftSparkMotor, leftCANMotor);
-	private SpeedControllerGroup rightGroup = new SpeedControllerGroup(rightSparkMotor, rightCANMotor);
+	private SpeedControllerGroup leftGroup = new SpeedControllerGroup(left1CANMotor, left2CANMotor);
+	private SpeedControllerGroup rightGroup = new SpeedControllerGroup(right1CANMotor, right2CANMotor);
 	private DifferentialDrive m_robotDrive = new DifferentialDrive(leftGroup, rightGroup);
 
 	/**
