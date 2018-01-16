@@ -9,6 +9,8 @@ package org.usfirst.frc.team4913.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
@@ -26,24 +28,25 @@ public class Robot extends IterativeRobot {
 	private Joystick m_stick = new Joystick(0);
 	private Timer m_timer = new Timer();
 
-	private WPI_TalonSRX right1CANMotor = new WPI_TalonSRX(0);
+	private WPI_TalonSRX rightFrontCANMotor = new WPI_TalonSRX(0);
 //	private Spark rightSparkMotor = new Spark(1);
 //	private Spark leftSparkMotor = new Spark(0);
-	private WPI_TalonSRX left1CANMotor = new WPI_TalonSRX(1);
-	private WPI_TalonSRX right2CANMotor = new WPI_TalonSRX(2);
-	private WPI_TalonSRX left2CANMotor = new WPI_TalonSRX(3);
+	private WPI_TalonSRX leftFrontCANMotor = new WPI_TalonSRX(1);
+	private WPI_TalonSRX rightRearCANMotor = new WPI_TalonSRX(2);
+	private WPI_TalonSRX leftRearCANMotor = new WPI_TalonSRX(3);
 	
+	UsbCamera camera;
 
-	private SpeedControllerGroup leftGroup = new SpeedControllerGroup(left1CANMotor, left2CANMotor);
-	private SpeedControllerGroup rightGroup = new SpeedControllerGroup(right1CANMotor, right2CANMotor);
+	private SpeedControllerGroup leftGroup = new SpeedControllerGroup(leftFrontCANMotor, leftRearCANMotor);
+	private SpeedControllerGroup rightGroup = new SpeedControllerGroup(rightFrontCANMotor, rightRearCANMotor);
 	private DifferentialDrive m_robotDrive = new DifferentialDrive(leftGroup, rightGroup);
-
 	/**
 	 * This function is run when the robot is first started up and should be used
 	 * for any initialization code.
 	 */
 	@Override
 	public void robotInit() {
+		camera = CameraServer.getInstance().startAutomaticCapture();
 	}
 
 	/**
@@ -80,7 +83,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		m_robotDrive.arcadeDrive(m_stick.getY(), m_stick.getX());
+		m_robotDrive.arcadeDrive(m_stick.getY(), -m_stick.getX());
 	}
 
 	/**
