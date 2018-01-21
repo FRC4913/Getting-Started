@@ -44,6 +44,12 @@ public class Robot extends IterativeRobot {
 	private boolean isSwitchOnOurSide = false;
 	private boolean midPositionTurnRight = false;
 
+	// Autonomous Modes
+	private boolean driveStraightDeliverCube = false;
+	private boolean driveStraightNoCube = false;
+	private boolean midLeftDeliverCube = false;
+	private boolean midRightDeliverCube = false;
+
 	// defines the starting position of the robot in the field when looking from
 	// behind the driver station
 	// 1 = Left
@@ -75,32 +81,26 @@ public class Robot extends IterativeRobot {
 		m_timer.reset();
 		m_timer.start();
 
+		// 1 = Left
+		// 2 = Middle
+		// 3 = Right
 		robotPosition = prefs.getInt("robot position", 1);
+		SmartDashboard.putNumber("Robot Position", robotPosition);
 
-		System.out.println("robot position: " + robotPosition);
+		String gameData = DriverStation.getInstance().getGameSpecificMessage();
+		SmartDashboard.putString("Game Data", gameData);
 
-		String gameData;
-		gameData = DriverStation.getInstance().getGameSpecificMessage();
-		switch (robotPosition) {
-		case 1:
+		if ((robotPosition == 1 && gameData.charAt(0) == 'L') || (robotPosition == 3 && gameData.charAt(0) == 'R')) {
+			// we're in corner position and switch is our side
+			driveStraightDeliverCube = true;
+		} else if (robotPosition == 2) {
 			if (gameData.charAt(0) == 'L') {
-				isSwitchOnOurSide = true;
+				midLeftDeliverCube = true;
+			} else if (gameData.charAt(0) == 'R') {
+				midRightDeliverCube = true;
 			}
-			break;
-		case 2:
-			if (gameData.charAt(0) == 'L') {
-				midPositionTurnRight = false;
-			} else {
-				midPositionTurnRight = true;
-			}
-			break;
-		case 3:
-			if (gameData.charAt(0) == 'R') {
-				isSwitchOnOurSide = true;
-			}
-			break;
-		default:
-			// do nothing for now
+		} else {
+			driveStraightNoCube = true;
 		}
 	}
 
@@ -109,19 +109,37 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		if (isSwitchOnOurSide) {
-			if (m_timer.get() < 10.0) {
+		if (driveStraightNoCube) {
+			if (m_timer.get() < 15.0) {
 				m_robotDrive.arcadeDrive(-0.5, 0.0); // drive forwards half speed
 			} else {
 				m_robotDrive.stopMotor(); // stop robot
 			}
-		} else if (midPositionTurnRight) {
-			if (m_timer.get() < 1.0) {
+		} else if (driveStraightDeliverCube) {
+			if (m_timer.get() < 5.0) {
 				m_robotDrive.arcadeDrive(-0.5, 0.0); // drive forwards half speed
 			} else {
 				m_robotDrive.stopMotor(); // stop robot
 			}
+		} else if (midLeftDeliverCube) {
+			if (m_timer.get() < 2.0) {
+				m_robotDrive.arcadeDrive(-0.5, 0.0); // drive forwards half speed
+			} else if (m_timer.get() < 5.0) {
+				m_robotDrive.arcadeDrive(-0.0, 0.5);
+			} else {
+				m_robotDrive.stopMotor(); // stop robot
+			}
+		} else if (midRightDeliverCube) {
+			if (m_timer.get() < 2.0) {
+				m_robotDrive.arcadeDrive(-0.5, 0.0); // drive forwards half speed
+			} else if (m_timer.get() < 5.0) {
+				m_robotDrive.arcadeDrive(-0.0, -0.5);
+			} else {
+				m_robotDrive.stopMotor(); // stop robot
+			}
+
 		}
+
 	}
 
 	/**
