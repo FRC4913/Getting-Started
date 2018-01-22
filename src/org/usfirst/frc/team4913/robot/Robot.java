@@ -8,17 +8,8 @@
 package org.usfirst.frc.team4913.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
 import edu.wpi.cscore.UsbCamera;
-import edu.wpi.first.wpilibj.CameraServer;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Preferences;
-import edu.wpi.first.wpilibj.Spark;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -29,8 +20,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  */
-public class Robot extends IterativeRobot {
-	private Joystick m_stick = new Joystick(0);
+public class Robot extends TimedRobot {
+    private Joystick m_stick = new Joystick(0);
 	private Timer m_timer = new Timer();
 
 	private DigitalInput pin7 = new DigitalInput(7);
@@ -41,8 +32,6 @@ public class Robot extends IterativeRobot {
 	private WPI_TalonSRX leftRearCANMotor = new WPI_TalonSRX(3);
 
 	Preferences prefs;
-	private boolean isSwitchOnOurSide = false;
-	private boolean midPositionTurnRight = false;
 
 	// Autonomous Modes
 	private boolean driveStraightDeliverCube = false;
