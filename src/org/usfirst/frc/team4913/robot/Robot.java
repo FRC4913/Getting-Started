@@ -157,11 +157,6 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void teleopInit() {
-		ultrasonic1.setOversampleBits(4);
-		ultrasonic1.setAverageBits(4);
-		ultrasonic2.setOversampleBits(2);
-		ultrasonic2.setAverageBits(2);
-
 	}
 
 	/**
@@ -179,8 +174,8 @@ public class Robot extends TimedRobot {
 		m_robotDrive.arcadeDrive(ySpeed, rotationSpeed);
 		// m_robotDrive.arcadeDrive(m_stick.getY(), -m_stick.getX());
 
-		ultrasonic1Val = (int) (ultrasonic1.getAverageValue() / MVOLTS_TO_INCHES);
-		ultrasonic2Val = (int) (ultrasonic2.getAverageValue() / MVOLTS_TO_INCHES);
+		ultrasonic1Val = (int) (ultrasonic1.getValue() / MVOLTS_TO_INCHES);
+		ultrasonic2Val = (int) (ultrasonic2.getValue() / MVOLTS_TO_INCHES);
 		System.out.println("us1 value: " + ultrasonic1Val);
 		System.out.println("us2 value: " + ultrasonic2Val);
 
@@ -188,8 +183,8 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putBoolean("Pin 8", pin8.get());
 		SmartDashboard.putNumber("Speed of y", ySpeed);
 
-		SmartDashboard.putNumber("us1 value", ultrasonic1.getValue() / MVOLTS_TO_INCHES);
-		SmartDashboard.putNumber("us2 value", ultrasonic2.getValue() / MVOLTS_TO_INCHES);
+		SmartDashboard.putNumber("us1 value", ultrasonic1Val);
+		SmartDashboard.putNumber("us2 value", ultrasonic2Val);
 	}
 
 	/**
