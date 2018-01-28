@@ -22,9 +22,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * directory.
  */
 public class Robot extends TimedRobot {
-	//private Joystick m_stick = new Joystick(0);
+	// private Joystick m_stick = new Joystick(0);
+
+	private static final double MVOLTS_TO_INCHES = 9.8; // 9.8 mV per inch
 
 	private Timer m_timer = new Timer();
+
+	AnalogInput ultrasonic1 = new AnalogInput(1);
+	AnalogInput ultrasonic2 = new AnalogInput(2);
 	private XboxController controller = new XboxController(0);
 
 	private DigitalInput pin7 = new DigitalInput(7);
@@ -55,15 +60,17 @@ public class Robot extends TimedRobot {
 	private SpeedControllerGroup rightGroup = new SpeedControllerGroup(rightFrontCANMotor, rightRearCANMotor);
 	private DifferentialDrive m_robotDrive = new DifferentialDrive(leftGroup, rightGroup);
 
-	double ySpeed =0;
+	double ySpeed = 0;
 	double yControllerInput;
 	double scaledYcontrollerInput;
-	double ySpeedScale = 0.01;//placeholder
+	double ySpeedScale = 0.01;// placeholder
 	double yDiff;
 	double scaledYDiff;
-	//yDiff = ySpeed - scaledYcontrollerInput
-	//yDiff will be used to decelerate the robot
+	// yDiff = ySpeed - scaledYcontrollerInput
+	// yDiff will be used to decelerate the robot
 	double rotationSpeed;
+
+	int ultrasonic1Val, ultrasonic2Val;
 
 	/**
 	 * This function is run when the robot is first started up and should be used
@@ -117,6 +124,7 @@ public class Robot extends TimedRobot {
 			} else {
 				m_robotDrive.stopMotor(); // stop robot
 			}
+
 		} else if (driveStraightDeliverCube) {
 			if (m_timer.get() < 5.0) {
 				m_robotDrive.arcadeDrive(-0.5, 0.0); // drive forwards half speed
@@ -149,6 +157,11 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void teleopInit() {
+		ultrasonic1.setOversampleBits(4);
+		ultrasonic1.setAverageBits(4);
+		ultrasonic2.setOversampleBits(2);
+		ultrasonic2.setAverageBits(2);
+
 	}
 
 	/**
@@ -160,17 +173,23 @@ public class Robot extends TimedRobot {
 		rotationSpeed = -controller.getX(Hand.kLeft);
 		yControllerInput = controller.getY(Hand.kLeft);
 		yDiff = yControllerInput - ySpeed;
-		scaledYDiff = yDiff*ySpeedScale;
+		scaledYDiff = yDiff * ySpeedScale;
 		ySpeed += scaledYDiff;
-				
+
 		m_robotDrive.arcadeDrive(ySpeed, rotationSpeed);
-				
+		// m_robotDrive.arcadeDrive(m_stick.getY(), -m_stick.getX());
 
+		ultrasonic1Val = (int) (ultrasonic1.getAverageValue() / MVOLTS_TO_INCHES);
+		ultrasonic2Val = (int) (ultrasonic2.getAverageValue() / MVOLTS_TO_INCHES);
+		System.out.println("us1 value: " + ultrasonic1Val);
+		System.out.println("us2 value: " + ultrasonic2Val);
 
-		//m_robotDrive.arcadeDrive(m_stick.getY(), -m_stick.getX());
 		SmartDashboard.putBoolean("Pin 7", pin7.get());
 		SmartDashboard.putBoolean("Pin 8", pin8.get());
 		SmartDashboard.putNumber("Speed of y", ySpeed);
+
+		SmartDashboard.putNumber("us1 value", ultrasonic1.getValue() / MVOLTS_TO_INCHES);
+		SmartDashboard.putNumber("us2 value", ultrasonic2.getValue() / MVOLTS_TO_INCHES);
 	}
 
 	/**
