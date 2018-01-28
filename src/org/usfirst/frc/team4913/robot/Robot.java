@@ -10,6 +10,7 @@ package org.usfirst.frc.team4913.robot;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -21,8 +22,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * directory.
  */
 public class Robot extends TimedRobot {
-    private Joystick m_stick = new Joystick(0);
+	//private Joystick m_stick = new Joystick(0);
+
 	private Timer m_timer = new Timer();
+	private XboxController controller = new XboxController(0);
 
 	private DigitalInput pin7 = new DigitalInput(7);
 	private DigitalInput pin8 = new DigitalInput(8);
@@ -51,6 +54,16 @@ public class Robot extends TimedRobot {
 	private SpeedControllerGroup leftGroup = new SpeedControllerGroup(leftFrontCANMotor, leftRearCANMotor);
 	private SpeedControllerGroup rightGroup = new SpeedControllerGroup(rightFrontCANMotor, rightRearCANMotor);
 	private DifferentialDrive m_robotDrive = new DifferentialDrive(leftGroup, rightGroup);
+
+	double ySpeed =0;
+	double yControllerInput;
+	double scaledYcontrollerInput;
+	double ySpeedScale = 0.01;//placeholder
+	double yDiff;
+	double scaledYDiff;
+	//yDiff = ySpeed - scaledYcontrollerInput
+	//yDiff will be used to decelerate the robot
+	double rotationSpeed;
 
 	/**
 	 * This function is run when the robot is first started up and should be used
@@ -143,9 +156,21 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		m_robotDrive.arcadeDrive(m_stick.getY(), -m_stick.getX());
+
+		rotationSpeed = -controller.getX(Hand.kLeft);
+		yControllerInput = controller.getY(Hand.kLeft);
+		yDiff = yControllerInput - ySpeed;
+		scaledYDiff = yDiff*ySpeedScale;
+		ySpeed += scaledYDiff;
+				
+		m_robotDrive.arcadeDrive(ySpeed, rotationSpeed);
+				
+
+
+		//m_robotDrive.arcadeDrive(m_stick.getY(), -m_stick.getX());
 		SmartDashboard.putBoolean("Pin 7", pin7.get());
 		SmartDashboard.putBoolean("Pin 8", pin8.get());
+		SmartDashboard.putNumber("Speed of y", ySpeed);
 	}
 
 	/**
