@@ -25,7 +25,7 @@ public class Robot extends TimedRobot {
 	// private Joystick m_stick = new Joystick(0);
 
 	private static final double MVOLTS_TO_INCHES = 9.8; // 9.8 mV per inch
-
+	AutoCode autoCode;
 	private Timer m_timer = new Timer();
 
 	AnalogInput ultrasonic1 = new AnalogInput(1);
@@ -34,13 +34,15 @@ public class Robot extends TimedRobot {
 
 	private DigitalInput pin7 = new DigitalInput(7);
 	private DigitalInput pin8 = new DigitalInput(8);
-	private WPI_TalonSRX rightFrontCANMotor = new WPI_TalonSRX(0);
-	private WPI_TalonSRX leftFrontCANMotor = new WPI_TalonSRX(1);
-	private WPI_TalonSRX rightRearCANMotor = new WPI_TalonSRX(2);
-	private WPI_TalonSRX leftRearCANMotor = new WPI_TalonSRX(3);
+	WPI_TalonSRX rightRearCANMotor = new WPI_TalonSRX(0);
+	WPI_TalonSRX leftRearCANMotor = new WPI_TalonSRX(1);
+	WPI_TalonSRX rightFrontCANMotor = new WPI_TalonSRX(2);
+	WPI_TalonSRX leftFrontCANMotor = new WPI_TalonSRX(3);
+	private WPI_TalonSRX idk = new WPI_TalonSRX(4);
 
 	Preferences prefs;
-
+	Grabber grabber;
+	
 	// Autonomous Modes
 	private boolean driveStraightDeliverCube = false;
 	private boolean driveStraightNoCube = false;
@@ -52,13 +54,14 @@ public class Robot extends TimedRobot {
 	// 1 = Left
 	// 2 = Middle
 	// 3 = Right
-	private int robotPosition;
+//	private int robotPosition;
 
 	UsbCamera camera;
+	
 
-	private SpeedControllerGroup leftGroup = new SpeedControllerGroup(leftFrontCANMotor, leftRearCANMotor);
-	private SpeedControllerGroup rightGroup = new SpeedControllerGroup(rightFrontCANMotor, rightRearCANMotor);
-	private DifferentialDrive m_robotDrive = new DifferentialDrive(leftGroup, rightGroup);
+	SpeedControllerGroup leftGroup = new SpeedControllerGroup(leftFrontCANMotor, leftRearCANMotor);
+	SpeedControllerGroup rightGroup = new SpeedControllerGroup(rightFrontCANMotor, rightRearCANMotor);
+	DifferentialDrive m_robotDrive = new DifferentialDrive(leftGroup, rightGroup);
 
 	double ySpeed = 0;
 	double yControllerInput;
@@ -80,6 +83,7 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		prefs = Preferences.getInstance();
 		camera = CameraServer.getInstance().startAutomaticCapture();
+		grabber = new Grabber(4);
 	}
 
 	/**
@@ -87,13 +91,14 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousInit() {
+		//autoCode.initiation();
 		m_timer.reset();
 		m_timer.start();
 
 		// 1 = Left
 		// 2 = Middle
 		// 3 = Right
-		robotPosition = prefs.getInt("robot position", 1);
+		int robotPosition = prefs.getInt("robot position", 1);
 		SmartDashboard.putNumber("Robot Position", robotPosition);
 
 		String gameData = DriverStation.getInstance().getGameSpecificMessage();
@@ -107,17 +112,20 @@ public class Robot extends TimedRobot {
 				midLeftDeliverCube = true;
 			} else if (gameData.charAt(0) == 'R') {
 				midRightDeliverCube = true;
+			
 			}
 		} else {
 			driveStraightNoCube = true;
 		}
 	}
 
+
 	/**
 	 * This function is called periodically during autonomous.
 	 */
 	@Override
 	public void autonomousPeriodic() {
+		//autoCode.run();
 		if (driveStraightNoCube) {
 			if (m_timer.get() < 15.0) {
 				m_robotDrive.arcadeDrive(-0.5, 0.0); // drive forwards half speed
@@ -140,7 +148,7 @@ public class Robot extends TimedRobot {
 				m_robotDrive.stopMotor(); // stop robot
 			}
 		} else if (midRightDeliverCube) {
-			if (m_timer.get() < 2.0) {
+			if (m_timer.get() < 2.0) { 
 				m_robotDrive.arcadeDrive(-0.5, 0.0); // drive forwards half speed
 			} else if (m_timer.get() < 5.0) {
 				m_robotDrive.arcadeDrive(-0.0, -0.5);
@@ -173,7 +181,16 @@ public class Robot extends TimedRobot {
 
 		m_robotDrive.arcadeDrive(ySpeed, rotationSpeed);
 		// m_robotDrive.arcadeDrive(m_stick.getY(), -m_stick.getX());
+		
+		if(controller.getXButton()) {
+			grabber.pull();
+		} else if(controller.getAButton()) {
+			grabber.push();
+		}else {
+			grabber.ikr();
+		}
 
+		
 		ultrasonic1Val = (int) (ultrasonic1.getValue() / MVOLTS_TO_INCHES);
 		ultrasonic2Val = (int) (ultrasonic2.getValue() / MVOLTS_TO_INCHES);
 		System.out.println("us1 value: " + ultrasonic1Val);
